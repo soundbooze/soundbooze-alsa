@@ -1,0 +1,13 @@
+AM_CFLAGS = --pedantic -Wall -O3
+AM_LDFLAGS = -lm -lasound -lpthread
+
+BIN = soundbooze
+SRC = main.c alsa.c pcm.c
+
+all: main
+
+main: $(SRC)
+	$(CC) $(AM_CFLAGS) $(AM_LDFLAGS) $(SRC) -o $(BIN)
+
+clean: 
+	/bin/rm -rf soundbooze configure config.status config.log Makefile autom4te.cache/
