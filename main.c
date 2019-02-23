@@ -16,6 +16,8 @@
 #include "alsa.h"
 #include "pcm.h"
 
+#include "tubewarmth.h"
+
 pthread_t live_thread;
 
 struct AlsaCapture c;
@@ -34,6 +36,9 @@ exit_sighandler (int signum) {
   free(p.buffer);
 
   /*
+
+  cleanup_TubeWarmth(tw); 
+
   snd_pcm_hw_params_free(c.params);
   snd_pcm_hw_params_free(p.params);
   */
@@ -44,6 +49,9 @@ exit_sighandler (int signum) {
 void *
 process (void *data)
 {
+
+  TubeWarmth *tw = (TubeWarmth *) instantiate_TubeWarmth(SAMPLERATE);
+
   while (1) {
 
     c.rc = snd_pcm_mmap_readi(c.handle, c.buffer, c.frames);
@@ -56,10 +64,19 @@ process (void *data)
       fprintf(stderr, "short read: read %d frames\n", c.rc);
     }
 
+    float float_buffer_in_f[c.size];
+    float tw_buffer_out_f[c.size], tw_buffer_out2_f[c.size];
+    int16_t tw_buffer_out_t[c.size];
+
+    pcm_to_float(c.buffer, float_buffer_in_f, c.size);
+    run_TubeWarmth(tw, float_buffer_in_f, tw_buffer_out_f, c.size);
+    run_adding_TubeWarmth(tw, tw_buffer_out_f, tw_buffer_out2_f, c.size);
+    float_to_pcm (tw_buffer_out2_f, tw_buffer_out_t, c.size);
+
     register_t i = 0, j = 0;
     for(i = 0; i < c.size; i++, j+=2) {
-      p.buffer[j] = c.buffer[i]; 
-      p.buffer[j+1] = c.buffer[i];
+      p.buffer[j] = tw_buffer_out_t[i]; // c.buffer[i]; 
+      p.buffer[j+1] = tw_buffer_out_t[i]; // c.buffer[i];
     }
 
     p.rc = snd_pcm_mmap_writei(p.handle, p.buffer, p.frames);
@@ -82,8 +99,8 @@ main (int argc, char *argv[])
 {
   signal(SIGINT, exit_sighandler);
 
-  alsa_capture("hw:1");
-  alsa_play("hw:0");
+  alsa_capture("hw:0");
+  alsa_play("hw:1");
 
   // priority - attributes  ...
   if (pthread_create(&live_thread, NULL, process, NULL)) {
