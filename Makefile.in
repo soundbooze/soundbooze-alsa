@@ -2,7 +2,7 @@ AM_CFLAGS = --pedantic -Wall -O3
 AM_LDFLAGS = -lm -lasound -lpthread
 
 BIN = soundbooze
-SRC = main.c alsa.c pcm.c
+SRC = main.c alsa.c pcm.c tubewarmth.c
 
 all: main
 
