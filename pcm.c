@@ -13,25 +13,25 @@
 #include "pcm.h"
 
 void
-pcm_to_float (const int16_t *buf_p, float *buf_d, size_t N)
+pcm_to_float (const int16_t *buf_t, float *buf_f, size_t N)
 {
   register_t i = 0;
   for (; i < N; i++) {
-    float d = ((float) *(buf_p + i)) / (float) PCM_S16LE;
+    float d = ((float) *(buf_t + i)) / (float) PCM_S16LE;
     if (d > 1) d = 1.0;
     if (d < -1) d = -1.0;
-    *(buf_d + i) = d;
+    *(buf_f + i) = d;
   }
 }
 
 void
-float_to_pcm (const float *buf_d, int16_t *buf_p, size_t N)
+float_to_pcm (const float *buf_f, int16_t *buf_t, size_t N)
 {
   register_t i = 0;
   for (; i < N; i++) {
-    float d = *(buf_d + i) * (float) PCM_S16LE;
+    float d = *(buf_f + i) * (float) PCM_S16LE;
     if (d > PCM_S16LE) d = PCM_S16LE;
     if (d < -PCM_S16LE) d = -PCM_S16LE;
-    *(buf_p + i) = (int16_t) d;
+    *(buf_t + i) = (int16_t) d;
   }
 }
