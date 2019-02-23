@@ -64,19 +64,19 @@ process (void *data)
       fprintf(stderr, "short read: read %d frames\n", c.rc);
     }
 
-    float float_buffer_in_f[c.size];
-    float tw_buffer_out_f[c.size], tw_buffer_out2_f[c.size];
-    int16_t tw_buffer_out_t[c.size];
+    float buff_in_f[c.size];
+    float tw_buff_out_f[c.size];
+    int16_t tw_buff_out_t[c.size];
 
-    pcm_to_float(c.buffer, float_buffer_in_f, c.size);
-    run_TubeWarmth(tw, float_buffer_in_f, tw_buffer_out_f, c.size);
-    run_adding_TubeWarmth(tw, tw_buffer_out_f, tw_buffer_out2_f, c.size);
-    float_to_pcm (tw_buffer_out2_f, tw_buffer_out_t, c.size);
+    pcm_to_float(c.buffer, buff_in_f, c.size);
+    run_TubeWarmth(tw, buff_in_f, tw_buff_out_f, c.size);
+    // run_adding_TubeWarmth(tw, buff_out_f, tw_buffer_out2_f, c.size);
+    float_to_pcm (tw_buff_out_f, tw_buff_out_t, c.size);
 
     register_t i = 0, j = 0;
     for(i = 0; i < c.size; i++, j+=2) {
-      p.buffer[j] = tw_buffer_out_t[i]; // c.buffer[i]; 
-      p.buffer[j+1] = tw_buffer_out_t[i]; // c.buffer[i];
+      p.buffer[j] = tw_buff_out_t[i];
+      p.buffer[j+1] = tw_buff_out_t[i];
     }
 
     p.rc = snd_pcm_mmap_writei(p.handle, p.buffer, p.frames);
