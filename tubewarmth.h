@@ -50,6 +50,7 @@ typedef struct {
 __BEGIN_DECLS
 void * instantiate_TubeWarmth(int);
 void run_TubeWarmth(void *, float *, float *, unsigned int);
+void run_adding_TubeWarmth(void *, float *, float *, unsigned int);
 void cleanup_TubeWarmth(void *);
 __END_DECLS
 
